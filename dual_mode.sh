@@ -12,6 +12,11 @@
 #
 # Author : sosorry
 # Date   : 10/23/2016
+#
+# Usage  : $ sudo ./dual_mode.sh [on|off]
+# dual mode on means Raspberry Pi being Access Point and WiFi client simultaneously
+# dual mode off means being WiFi client only
+#
 
 CPUINFO=`cat /proc/cpuinfo | grep -i hardware | awk '{print $3}'`
 if [ "$CPUINFO" != "BCM2709" ]
