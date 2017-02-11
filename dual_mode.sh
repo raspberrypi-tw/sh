@@ -8,7 +8,7 @@
 # found in the LICENSE file.
 #
 # dual_mode.sh
-# Make Pi 3 to be in both Access Point mode and client mode simultaneously.
+# Make Pi 3 to operate in both Access Point mode and client mode simultaneously.
 #
 # Author : sosorry
 # Date   : 10/23/2016
@@ -190,7 +190,6 @@ wpa_key_mgmt=WPA-PSK
 wpa_pairwise=TKIP
 rsn_pairwise=CCMP
 wmm_enabled=1 
-dump_file=/tmp/hostapd.dump
 EOF'
 }
 
@@ -356,7 +355,7 @@ main() {
       echo $'\n'
     fi
   else
-    echo $'Usage: sudo ./dual_mode.sh [on|off] \n'
+    echo $'Usage: sudo ./dual_mode.sh [on|off|status] \n'
   fi
 }
 
