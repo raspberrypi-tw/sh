@@ -33,7 +33,9 @@ PI_PSK="1234567890"
 # Check if the hardware is Pi 3
 #
 check_version() {
-  if [ "$CPUINFO" != "BCM2709" ]; then
+  if [ "$CPUINFO" == "BCM2709" ] || [ "$CPUINFO" == "BCM2835" ]; then
+    echo "Check Pi 3 OK"
+  else
     echo "Dual mode support only Raspberry Pi 3. Online shopping: https://www.raspberrypi.com.tw/10684/55/ "
     exit 0
   fi
@@ -98,7 +100,7 @@ find_psk() {
 # Create SSID from input
 #
 ask_subnet() {
-  echo -n "Input a number from [2] to [253]...> "
+  echo -n "Input a number from [3] to [252]...> "
   read SUBNET_IP
   if [ $SUBNET_IP -eq $SUBNET_IP 2>/dev/null ] && [ $SUBNET_IP -lt 253 ] && [ $SUBNET_IP -gt 2 ]; then
     PI_SSID="RPi-$SUBNET_IP"
