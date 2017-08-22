@@ -2,7 +2,7 @@
 #+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #|R|a|s|p|b|e|r|r|y|P|i|.|c|o|m|.|t|w|
 #+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-# Copyright (c) 2016, raspberrypi.com.tw
+# Copyright (c) 2017, raspberrypi.com.tw
 # All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -23,7 +23,7 @@
 #
 # GLOBAL VARIABLES
 #
-CPUINFO=`cat /proc/cpuinfo | grep -i hardware | awk '{print $3}'`
+CPUINFO=`cat /proc/cpuinfo | grep Revision | awk '{print $3}'`
 WPA_FILE="/etc/wpa_supplicant/wpa_supplicant.conf"
 BACKUP_DIR=/home/pi/.bak
 PI_PSK="1234567890"
@@ -33,7 +33,7 @@ PI_PSK="1234567890"
 # Check if the hardware is Pi 3
 #
 check_version() {
-  if [ "$CPUINFO" == "BCM2709" ] || [ "$CPUINFO" == "BCM2835" ]; then
+  if  echo "$CPUINFO" | grep -xq .*[82]$; then
     echo "Check Pi 3 OK"
   else
     echo "Dual mode support only Raspberry Pi 3. Online shopping: https://www.raspberrypi.com.tw/10684/55/ "
@@ -81,7 +81,7 @@ find_psk() {
     do
       if grep -B"$i" "$SSID" "$WPA_FILE" | grep -Fxq "{"; then
         break
-      else
+ 6     else
         IN=`grep -B"$i" "$SSID" "$WPA_FILE" | grep "psk"`
 
         if [[ $IN == *"="* ]]; then
@@ -225,14 +225,17 @@ create_dual() {
   sudo bash -c 'cat > /usr/local/bin/dual_mode << EOF
 #!/bin/bash
 
+systemctl restart networking.service
 iw dev wlan0 interface add uap0 type __ap
-service dnsmasq restart
+systemctl restart dnsmasq.service
 sysctl net.ipv4.ip_forward=1
 iptables -t nat -A POSTROUTING -s 192.168.'$SUBNET_IP'.0/24 ! -d 192.168.'$SUBNET_IP'.0/24 -j MASQUERADE
 ifup uap0
 hostapd /etc/hostapd/hostapd.conf
+systemctl restart networking.service
 EOF'
   sudo chmod 755 /usr/local/bin/dual_mode
+  sudo systemctl restart networking.service
 }
 
 
