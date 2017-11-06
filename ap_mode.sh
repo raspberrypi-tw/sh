@@ -23,7 +23,7 @@
 #
 # GLOBAL VARIABLES
 #
-CPUINFO=`cat /proc/cpuinfo | grep -i hardware | awk '{print $3}'`
+CPUINFO=`cat /proc/cpuinfo | grep Revision | awk '{print $3}'`
 WPA_FILE="/etc/wpa_supplicant/wpa_supplicant.conf"
 BACKUP_DIR=/home/pi/.bak
 PI_PSK="1234567890"
@@ -34,8 +34,10 @@ PI_CHANNEL=11
 # Check if the hardware is Pi 3
 #
 check_version() {
-  if [ "$CPUINFO" != "BCM2709" ]; then
-    echo "Ap mode support only Raspberry Pi 3. Online shopping: https://www.raspberrypi.com.tw/10684/55/ "
+  if  echo "$CPUINFO" | grep -xq .*[82]$; then
+    echo "Check Pi 3 OK"
+  else
+    echo "This script is for Raspberry Pi 3 only. Online shopping: https://www.raspberrypi.com.tw/10684/55/ "
     exit 0
   fi
 }
