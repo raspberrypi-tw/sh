@@ -125,7 +125,12 @@ create_hostpad() {
   sudo bash -c 'cat > /etc/hostapd/hostapd.conf << EOF
 interface=wlan0
 ssid='$PI_SSID'
-hw_mode=g
+#hw_mode=g
+hw_mode=b
+ieee80211n=0
+upported_rates=10 20 55 110
+basic_rates=10 20 55 110
+preamble=1
 channel='$PI_CHANNEL'
 macaddr_acl=0
 auth_algs=1
