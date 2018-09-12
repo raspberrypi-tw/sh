@@ -63,7 +63,6 @@ find_psk() {
   if [[ $IN == *"="* ]]; then
     PSK=$(echo $IN | tr "=" "\n")
     PSK=$(echo $PSK | awk '{print $2}' | tr -d '"')
-    echo $PSK
   fi
 }
 
@@ -280,10 +279,13 @@ restore_setting() {
     sudo mv "$BACKUP_DIR"/interfaces /etc/network/interfaces 2>/dev/null
     echo "mv $BACKUP_DIR/interfaces /etc/network/interfaces"
   fi
-
-
-  if [ -f "/etc/NetworkManager/NetworkManager.conf" ]; then
-    sed -i 's/managed=true/managed=false/g' /etc/NetworkManager/NetworkManager.conf
+  if [ -f "$BACKUP_DIR"/functions.sh ]; then
+    sudo mv "$BACKUP_DIR"/functions.sh /etc/wpa_supplicant/functions.sh 2>/dev/null
+    echo "mv $BACKUP_DIR/functions.sh /etc/wpa_supplicant/functions.sh"
+  fi
+  if [ -f "$BACKUP_DIR"/NetworkManager.conf ]; then
+    sudo mv "$BACKUP_DIR"/NetworkManager.conf /etc/NetworkManager/NetworkManager.conf 2>/dev/null
+    echo "mv $BACKUP_DIR/NetworkManager.conf /etc/NetworkManager/NetworkManager.conf"
   fi
 
   sudo systemctl stop dual_mode.service
