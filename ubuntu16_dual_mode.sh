@@ -134,12 +134,12 @@ backup_setting() {
     echo "mv /etc/network/interfaces $BACKUP_DIR"
   fi
   if [ ! -f "$BACKUP_DIR"/functions.sh ]; then
-    sudo mv /etc/wpa_supplicant/functions.sh "$BACKUP_DIR" 2>/dev/null
-    echo "mv /etc/wpa_supplicant/functions.sh $BACKUP_DIR"
+    sudo cp /etc/wpa_supplicant/functions.sh "$BACKUP_DIR" 2>/dev/null
+    echo "cp /etc/wpa_supplicant/functions.sh $BACKUP_DIR"
   fi
   if [ ! -f "$BACKUP_DIR"/NetworkManager.conf ]; then
-    sudo mv /etc/NetworkManager/NetworkManager.conf "$BACKUP_DIR" 2>/dev/null
-    echo "mv /etc/NetworkManager/NetworkManager.conf $BACKUP_DIR"
+    sudo cp /etc/NetworkManager/NetworkManager.conf "$BACKUP_DIR" 2>/dev/null
+    echo "cp /etc/NetworkManager/NetworkManager.conf $BACKUP_DIR"
   fi
   echo "====================================="
 }
