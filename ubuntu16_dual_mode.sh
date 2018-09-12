@@ -25,7 +25,8 @@
 #
 CPUINFO=`cat /proc/cpuinfo | grep Revision | awk '{print $3}'`
 WPA_FILE="/etc/NetworkManager"
-BACKUP_DIR=/home/ubuntu/.bak
+USER=`whoami`
+BACKUP_DIR=/home/"$USER"/.bak
 PI_PSK="1234567890"
 
 
