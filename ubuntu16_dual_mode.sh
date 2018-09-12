@@ -13,7 +13,7 @@
 # Author : sosorry
 # Date   : 10/23/2016
 #
-# Usage  : $ sudo ./dual_mode.sh [on|off|status]
+# Usage  : $ sudo ./ubuntu16_dual_mode.sh [on|off|status]
 # dual mode on means Raspberry Pi being Access Point and WiFi client simultaneously
 # dual mode off means being WiFi client only
 # dual mode status means to check if dual mode is on or off
@@ -107,7 +107,8 @@ backup_setting() {
   echo $'\nBackup hostapd/dnsmasq/interface settings... '
   echo "====================================="
   has_wpa_supplicant=`dpkg -l | grep wpasupplicant | wc | awk '{print $1}'`
-  if [ $has_wpa_supplicant -lt 1 ]; then
+  sudo killall apt.systemd.daily
+  if [ $has_wpa_supplicant -lt 2 ]; then
     sudo apt-get update
     sudo apt-get install -y wpasupplicant
   fi
@@ -132,6 +133,14 @@ backup_setting() {
     sudo mv /etc/network/interfaces "$BACKUP_DIR" 2>/dev/null
     echo "mv /etc/network/interfaces $BACKUP_DIR"
   fi
+  if [ ! -f "$BACKUP_DIR"/functions.sh ]; then
+    sudo mv /etc/wpa_supplicant/functions.sh "$BACKUP_DIR" 2>/dev/null
+    echo "mv /etc/wpa_supplicant/functions.sh $BACKUP_DIR"
+  fi
+  if [ ! -f "$BACKUP_DIR"/NetworkManager.conf ]; then
+    sudo mv /etc/NetworkManager/NetworkManager.conf "$BACKUP_DIR" 2>/dev/null
+    echo "mv /etc/NetworkManager/NetworkManager.conf $BACKUP_DIR"
+  fi
   echo "====================================="
 }
 
@@ -155,6 +164,7 @@ create_hostpad() {
   CHANNEL=`iwlist wlan0 channel | grep -i current | awk '{print $5}' | rev | cut -c 2- | rev`
 
   sudo bash -c 'cat > /etc/hostapd/hostapd.conf << EOF
+country_code=TW
 interface=uap0
 ssid='$PI_SSID'
 hw_mode=g
@@ -167,7 +177,7 @@ wpa_passphrase='$PI_PSK'
 wpa_key_mgmt=WPA-PSK
 wpa_pairwise=TKIP
 rsn_pairwise=CCMP
-wmm_enabled=1 
+#wmm_enabled=1 
 EOF'
 }
 
@@ -176,9 +186,20 @@ EOF'
 # Change default wpa_supplicant daemon setting
 #
 change_wpa_supplicant() {
-  sed -i 's/-D nl80211,wext/-DWEXT/g' /etc/wpa_supplicant/functions.sh
+  if [ -f /etc/wpa_supplicant/functions.sh ]; then
+    sed -i 's/-D nl80211,wext/-Dwext/g' /etc/wpa_supplicant/functions.sh
+  fi
 }
 
+
+#
+# Change NetworkManager from true to false
+#
+change_nm() {
+  if [ -f /etc/NetworkManager/NetworkManager.conf ]; then
+    sed -i 's/managed=true/managed=false/g' /etc/NetworkManager/NetworkManager.conf
+  fi
+}
 
 #
 # Create /etc/network/interface
@@ -187,7 +208,7 @@ create_interface() {
   sudo bash -c 'cat > /etc/network/interfaces << EOF
 auto lo
 iface lo inet loopback
-iface eth0 inet manual
+#iface eth0 inet manual
 
 auto wlan0
 iface wlan0 inet dhcp
@@ -258,6 +279,12 @@ restore_setting() {
     sudo mv "$BACKUP_DIR"/interfaces /etc/network/interfaces 2>/dev/null
     echo "mv $BACKUP_DIR/interfaces /etc/network/interfaces"
   fi
+
+
+  if [ -f "/etc/NetworkManager/NetworkManager.conf" ]; then
+    sed -i 's/managed=true/managed=false/g' /etc/NetworkManager/NetworkManager.conf
+  fi
+
   sudo systemctl stop dual_mode.service
   sudo systemctl disable dual_mode.service
   echo "====================================="
@@ -314,6 +341,7 @@ main() {
       create_dnsmasq
       create_hostpad
       change_wpa_supplicant
+      change_nm
       create_interface
       create_dual
       create_service
