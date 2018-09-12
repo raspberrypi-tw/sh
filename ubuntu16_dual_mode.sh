@@ -107,7 +107,7 @@ backup_setting() {
   echo $'\nBackup hostapd/dnsmasq/interface settings... '
   echo "====================================="
   has_wpa_supplicant=`dpkg -l | grep wpasupplicant | wc | awk '{print $1}'`
-  if [ $has_hostapd -lt 1 ]; then
+  if [ $has_wpa_supplicant -lt 1 ]; then
     sudo apt-get update
     sudo apt-get install -y wpasupplicant
   fi
