@@ -107,12 +107,13 @@ backup_setting() {
   echo $'\nBackup hostapd/dnsmasq/interface settings... '
   echo "====================================="
   has_wpa_supplicant=`dpkg -l | grep wpasupplicant | wc | awk '{print $1}'`
-  sudo killall apt.systemd.daily
+  sudo killall apt.systemd.daily 2>/dev/null
   if [ $has_wpa_supplicant -lt 2 ]; then
     sudo apt-get update
     sudo apt-get install -y wpasupplicant
   fi
-  sudo -u pi mkdir "$BACKUP_DIR" 2>/dev/null
+  USER=`whoami`
+  sudo -u "$USER" mkdir "$BACKUP_DIR" 2>/dev/null
   has_hostapd=`dpkg -l | grep hostapd | wc | awk '{print $1}'`
   if [ $has_hostapd -lt 1 ]; then
     sudo apt-get install -y hostapd
