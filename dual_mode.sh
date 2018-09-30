@@ -156,6 +156,10 @@ backup_setting() {
     sudo mv /etc/network/interfaces "$BACKUP_DIR" 2>/dev/null
     echo "mv /etc/network/interfaces $BACKUP_DIR"
   fi
+  if [ ! -f "$BACKUP_DIR"/functions.sh ]; then
+    sudo cp /etc/wpa_supplicant/functions.sh "$BACKUP_DIR" 2>/dev/null
+    echo "cp /etc/wpa_supplicant/functions.sh $BACKUP_DIR"
+  fi
   echo "====================================="
 }
 
@@ -194,6 +198,16 @@ wpa_pairwise=TKIP
 rsn_pairwise=CCMP
 #wmm_enabled=1 
 EOF'
+}
+
+
+#
+# Change default wpa_supplicant daemon setting
+#
+change_wpa_supplicant() {
+  if [ -f /etc/wpa_supplicant/functions.sh ]; then
+    sed -i 's/-D nl80211,wext/-Dwext/g' /etc/wpa_supplicant/functions.sh
+  fi
 }
 
 
@@ -275,6 +289,10 @@ restore_setting() {
     sudo mv "$BACKUP_DIR"/interfaces /etc/network/interfaces 2>/dev/null
     echo "mv $BACKUP_DIR/interfaces /etc/network/interfaces"
   fi
+  if [ -f "$BACKUP_DIR"/functions.sh ]; then
+    sudo mv "$BACKUP_DIR"/functions.sh /etc/wpa_supplicant/functions.sh 2>/dev/null
+    echo "mv $BACKUP_DIR/functions.sh /etc/wpa_supplicant/functions.sh"
+  fi
   sudo systemctl stop dual_mode.service
   sudo systemctl disable dual_mode.service
   echo "====================================="
@@ -330,6 +348,7 @@ main() {
       backup_setting
       create_dnsmasq
       create_hostpad
+      change_wpa_supplicant
       create_interface
       create_dual
       create_service
