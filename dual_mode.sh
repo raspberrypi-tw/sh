@@ -2,7 +2,7 @@
 #+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 #|R|a|s|p|b|e|r|r|y|P|i|.|c|o|m|.|t|w|
 #+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-# Copyright (c) 2017, raspberrypi.com.tw
+# Copyright (c) 2018, raspberrypi.com.tw
 # All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
@@ -179,6 +179,7 @@ create_hostpad() {
   CHANNEL=`iwlist wlan0 channel | grep -i current | awk '{print $5}' | rev | cut -c 2- | rev`
 
   sudo bash -c 'cat > /etc/hostapd/hostapd.conf << EOF
+country_code=TW
 interface=uap0
 ssid='$PI_SSID'
 hw_mode=g
@@ -191,7 +192,7 @@ wpa_passphrase='$PI_PSK'
 wpa_key_mgmt=WPA-PSK
 wpa_pairwise=TKIP
 rsn_pairwise=CCMP
-wmm_enabled=1 
+#wmm_enabled=1 
 EOF'
 }
 
@@ -229,7 +230,7 @@ iw dev wlan0 interface add uap0 type __ap
 service dnsmasq start
 sysctl net.ipv4.ip_forward=1
 iptables -t nat -A POSTROUTING -s 192.168.'$SUBNET_IP'.0/24 ! -d 192.168.'$SUBNET_IP'.0/24 -j MASQUERADE
-ifup uap0
+ifconfig uap0 up
 hostapd /etc/hostapd/hostapd.conf
 EOF'
   sudo chmod 755 /usr/local/bin/dual_mode
