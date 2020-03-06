@@ -33,7 +33,7 @@ PI_PSK="1234567890"
 # Check if the hardware is Pi 3
 #
 check_version() {
-  if  echo "$CPUINFO" | grep -xq .*[82]$; then
+  if  echo "$CPUINFO" | grep -xq ".*82\|.*83$"$; then
     echo "Check Pi 3 OK"
   else
     echo "Dual mode support only Raspberry Pi 3. Online shopping: https://www.raspberrypi.com.tw/10684/55/ "
@@ -245,6 +245,7 @@ service dnsmasq start
 sysctl net.ipv4.ip_forward=1
 iptables -t nat -A POSTROUTING -s 192.168.'$SUBNET_IP'.0/24 ! -d 192.168.'$SUBNET_IP'.0/24 -j MASQUERADE
 ifconfig uap0 up
+dhclient eth0
 hostapd /etc/hostapd/hostapd.conf
 EOF'
   sudo chmod 755 /usr/local/bin/dual_mode
